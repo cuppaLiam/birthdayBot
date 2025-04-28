@@ -5,8 +5,10 @@ from datetime import datetime
 
 today = datetime.now()
 date = today.strftime("%m-%d")  #date in MM-DD format because birthdays are stored with different years
+date = "12-15"
 load_dotenv()
 
+#Notion stuff
 NOTION_TOKEN = os.getenv('NOTION_TOKEN')
 DATABASE_ID = os.getenv('DATABASE_ID')
 
@@ -15,6 +17,14 @@ headers = {
     "Content-Type": "application/json",
     "Notion-Version": "2022-06-28",
 }
+
+#Discord stuff
+WEBHOOK_URL = os.getenv('WEBHOOK_URL')
+
+people = []
+
+HR_discord_id = '732146103268540458'
+
 
 def get_pages():
     url = f"https://api.notion.com/v1/databases/{DATABASE_ID}/query"
@@ -37,20 +47,27 @@ def get_pages():
 
 
 pages = get_pages()
-i = 0
 for page in pages:
     last_day = page["properties"]['Last day at MAC']["date"]
     if last_day != None and datetime.strptime(last_day["start"], "%Y-%m-%d").date() > today.date(): #if last day is set to None, then assume they are still in MAC (as it has not been put in the db yet)
-        print(f"{page["properties"]["Name"]["title"][0]["text"]["content"]}: False")
-    else:
-        print(f"{page["properties"]["Name"]["title"][0]["text"]["content"]}: True " ) 
-        i+=1
-print(f"There are {i} active members in MAC")
-"""
-for page in pages:
+        continue #not an active member
     bday = page["properties"]["Birthday"]["date"]
     if bday == None:
         continue
     elif bday["start"][-5:] == date:
-        print(page["properties"]["Name"]["title"][0]["text"]["content"])
-    """
+        people.append(page["properties"]["Name"]["title"][0]["text"]["content"])
+
+#send out a message for every person that has a birthday!
+for person in people:
+    data = {
+            "content": "<@&{HR_discord_id}>",
+            "embeds": [
+                 {
+                     "title": "Birthday Alert!",
+                     f"description": "Today is {person}'s birthday!",
+                     "color": 0xffe430
+                }
+           ] 
+    }
+    response = requests.post(WEBHOOK_URL, json=data)
+    #print(response.status_code)     
