@@ -5,7 +5,6 @@ from datetime import datetime
 
 today = datetime.now()
 date = today.strftime("%m-%d")  #date in MM-DD format because birthdays are stored with different years
-date = "12-15"
 load_dotenv()
 
 #Notion stuff
