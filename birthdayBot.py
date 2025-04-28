@@ -37,10 +37,20 @@ def get_pages():
 
 
 pages = get_pages()
+i = 0
+for page in pages:
+    last_day = page["properties"]['Last day at MAC']["date"]
+    if last_day != None and datetime.strptime(last_day["start"], "%Y-%m-%d").date() > today.date(): #if last day is set to None, then assume they are still in MAC (as it has not been put in the db yet)
+        print(f"{page["properties"]["Name"]["title"][0]["text"]["content"]}: False")
+    else:
+        print(f"{page["properties"]["Name"]["title"][0]["text"]["content"]}: True " ) 
+        i+=1
+print(f"There are {i} active members in MAC")
+"""
 for page in pages:
     bday = page["properties"]["Birthday"]["date"]
     if bday == None:
         continue
     elif bday["start"][-5:] == date:
         print(page["properties"]["Name"]["title"][0]["text"]["content"])
-    
+    """
